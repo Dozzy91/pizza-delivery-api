@@ -31,11 +31,13 @@ class TestConfig(Config): # This is for testing. Note by putting config in the b
     SQLALCHEMY_DATABASE_URI = 'sqlite://' # We will be using a memory database. Unlike what we have above, the sqlite has three slashes (sqlite:///') which simply says it's using an actual database but the slashes or forward thick is two (sqlite://') it means it's using a memory database. Note that a memory database uses the computer's memory and not storage so, it could be wiped off when the computer goes off. 
     
 class ProdConfig(Config): # This is for production. Note how the ProdCOnfig class is inheriting from the config class ProdConfig(Config)
-    # SQLALCHEMY_DATABASE_URI = uri # Since we have defined the URI above, we just need to assign it here.
-    SQLALCHEMY_DATABASE_URI = 'postgresql://pizza_db_a62s_user:1G83A2RGditQLRe6a51nHGm32nJicADp@dpg-cn11u9un7f5s73fcn6o0-a/pizza_db_a62s' # For render deploy
+    SQLALCHEMY_DATABASE_URI = config('DATABASE_URL')
+    # # SQLALCHEMY_DATABASE_URI = uri # Since we have defined the URI above, we just need to assign it here.
+    # # SQLALCHEMY_DATABASE_URI = 'postgresql://pizza_db_a62s_user:1G83A2RGditQLRe6a51nHGm32nJicADp@dpg-cn11u9un7f5s73fcn6o0-a/pizza_db_a62s' # For render deploy
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = config('DEBUG', False, cast=bool) # You have to set debug to False in Production so that when you encounter an error, it won't display on your UI screen because that's quite messy most times. Those error messages we get on insomnia is as a result of debug=True
     # Now head to the runserver file and configure that too since we'll be running the file when we want to start the application
+
 
 # The config will be used to import settings/classes in our __init__.py file so technically, the 'dev', 'prod', and 'test' points to the classes 'DevConfig', 'ProdConfig', and 'ProdConfig' Respectively so it will be easy to import them.
 config_dict = {
