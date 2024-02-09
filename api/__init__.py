@@ -10,7 +10,10 @@ from flask_migrate import Migrate # Helps to modify the database without needing
 from flask_jwt_extended import JWTManager
 from werkzeug.exceptions import NotFound, MethodNotAllowed
 
-def create_app(config=config_dict['dev']): # Depending on the configuration we want to use, which will be passed in as an argument, we can simply change it here to either "dev", "prod" or "test" depending on what task we want to carry out. 
+def create_app(config=config_dict['prod']): # Depending on the configuration we want to use, which will be passed in as an argument, we can simply change it here to either "dev", "prod" or "test" depending on what task we want to carry out.
+                        # Note, leaving this parameter as 'config' in order to get data from runserver.py when called actually runs the server but it does not run Flask shell, also it creates the db but Flask shell will never work. So we have to leave to as this "config=config_dict['prod']".
+                        # Also, trying to create the db with the config as parameter raised errors. To avoid that, we have to manually enter 'prod'/'test'/'dev' as argument both here and runserver that is (config=config_dict['prod']) 
+    
     app = Flask(__name__)
 
     app.config.from_object(config) # This is gets values form an object and updates them to the current state. In this case, it's getting the config_dict['dev'] dictionary from the config.py file and updates it depending on what config is passed in which could be 'prod' or 'test'

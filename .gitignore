@@ -55,7 +55,7 @@ cover/
 *.mo
 *.pot
 
-# Django stuff:
+# Django/FLask stuff:
 *.log
 local_settings.py
 db.sqlite3
@@ -164,3 +164,6 @@ pizza
 
 # Ignorign the Heroku file
 Procfile
+
+# Ignoring the run.py file which allows us to choose a config mode
+run.py
