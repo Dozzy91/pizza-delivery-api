@@ -9,10 +9,13 @@ from .models.users import User # Importing the User model
 from flask_migrate import Migrate # Helps to modify the database without needing to delethe entire databse when wahala burst 
 from flask_jwt_extended import JWTManager
 from werkzeug.exceptions import NotFound, MethodNotAllowed
+from blocklist import BLOCKLIST
 
-def create_app(config=config_dict['prod']): # Depending on the configuration we want to use, which will be passed in as an argument, we can simply change it here to either "dev", "prod" or "test" depending on what task we want to carry out.
-                        # Note, leaving this parameter as 'config' in order to get data from runserver.py when called actually runs the server but it does not run Flask shell, also it creates the db but Flask shell will never work. So we have to leave to as this "config=config_dict['prod']".
-                        # Also, trying to create the db with the config as parameter raised errors. To avoid that, we have to manually enter 'prod'/'test'/'dev' as argument both here and runserver that is (config=config_dict['prod']) 
+def create_app(config=config_dict['prod']): # Basically, the argument for this needs to be passed manually in order to create the db with flask. You should pass the config you want to use in here such as prod, dev or test if you mistakenly pass in a wrog config, your operations will be stramed to tht config
+                                           # For instance, if you want to use prod config and pass in dev config and you want to create a db in your remote db location, it will instead ty to create the db in the dev config which will throw an error becuase the url of dev and url of prod are different.
+                                           # Depending on the configuration we want to use, which will be passed in as an argument, we can simply change it here to either "dev", "prod" or "test" depending on what task we want to carry out.
+                                           # Note, leaving this parameter as 'config' in order to get data from runserver.py when called actually runs the server but it does not run Flask shell, also it creates the db but Flask shell will never work. So we have to leave to as this "config=config_dict['prod']".
+                                           # Also, trying to create the db with the config as parameter raised errors. To avoid that, we have to manually enter 'prod'/'test'/'dev' as argument both here and runserver that is (config=config_dict['prod']) 
     
     app = Flask(__name__)
 
@@ -50,6 +53,16 @@ def create_app(config=config_dict['prod']): # Depending on the configuration we 
     api.add_namespace(orders_namespace) # No need adding a path to this because technically, this will turn to the landing/home page leaving the path option blank will assign a default path of "/" putting a path of '/' or '/orders' will turn the swaggger-ui path to '//' or '/orders//' respectively
     api.add_namespace(auth_namespace, path='/auth')
 
+    # Logging out the user
+    @jwt.token_in_blocklist_loader # This decorator checks if the token is in blocklist and proceses the logout functionality which to me is more like terminating that token.
+    def check_token_in_blocklist(jwt_header, jwt_payload):
+        return jwt_payload['jti'] in BLOCKLIST
+    
+    # Handling a revoked token
+    @jwt.revoked_token_loader
+    def handle_revoked_token(jwt_header, jwt_payload):
+        return {'message': 'Token has been revoked'}
+    
     # Coding different error handlers
       # Not Found
     @api.errorhandler(NotFound) # This block of code kicks in whenever the code meets a not found error. Instead of all those plenty strings, the code will just return the simple message that is (return {"error": "Not Found"})

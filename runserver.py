@@ -1,3 +1,5 @@
+# This configurtion or for gunicorn to be able to run the app automatically
+
 from api import create_app
 from api.config.config import config_dict
 

@@ -4,7 +4,8 @@ from flask_restx import Namespace, Resource, fields # Think of Resource as more 
 from ..models.users import User # This will bring in the save function defined in the user class
 from werkzeug.security import generate_password_hash, check_password_hash # Using werkzeug.security for our security in place of passlib.hash
 from http import HTTPStatus # This will be used to get http status instead of the basic status code (401, 404, 201) we manually type in. We also can selected from a predefined list of codes to choose from. 
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt
+from blocklist import BLOCKLIST
 
 auth_namespace = Namespace('auth', description='namespace for authentication') # Just like we define aa blueprint in the smorest blueprint which is viewd with swagger-ui
 
@@ -83,6 +84,14 @@ class Login(Resource):
 
             return response, HTTPStatus.CREATED
 
+@auth_namespace.route("/logout")
+class Logout(Resource):
+    @jwt_required()
+    def post(self):
+        jti = get_jwt()['jti'] # Gets the current jwt_identity.
+        BLOCKLIST.add(jti) # Adds that jwt_identity to the blocklist we creted which in this case is a set.
+
+        return {'message': "Successfully Logged out"}, HTTPStatus.OK
 
 @auth_namespace.route("/refresh")
 class Refresh_Token(Resource):
@@ -94,4 +103,3 @@ class Refresh_Token(Resource):
 
         access_token = create_access_token(identity=username) # TO get this you have to go to the route in insomnia, first log in a user then, copy the user's refresh token, open up the'Auth" section, click on the brearer authorization then paste the token you copied. Remeber that this access token is what will be used instead of the first one so it doesn't unexpectdely expire.
         return {"access_token": access_token}, HTTPStatus.OK 
-

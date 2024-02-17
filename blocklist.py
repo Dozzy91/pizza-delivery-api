@@ -1,0 +1,1 @@
+BLOCKLIST = set() # Makes sure there are no two tokens of the same characteristics.
